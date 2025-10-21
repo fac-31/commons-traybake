@@ -1,6 +1,95 @@
-# gitignore template for LangChain products, e.g., LangGraph, LangSmith
-# website: https://www.langchain.com/
-# website: https://www.langchain.com/langgraph
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# LangGraph
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+.vercel/
+.netlify/
+
+# Dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# LangChain / LangGraph
 .langgraph_api/
+
+# LangSmith
+.langsmith/
+
+# Parliament API Testing
+api-testing/data/raw-responses/*.json
+api-testing/data/test-datasets/*.json
+interesting-debates.json
+
+# Generated mock data
+test-data/
+mock-*.json
+
+# Neo4j local database (if running locally)
+neo4j-data/
+.neo4j/
+
+# Bruno cache (keep collection files, ignore cache)
+api-testing/**/*.cache
+
+# Python (if used for data preprocessing)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+.venv/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Parliament data dumps (large files)
+data/parliament-dumps/
+*.xml.gz
+*.json.gz
+
+# Vector embeddings cache (can be large)
+embeddings-cache/
+.embeddings/
+
+# Evaluation results (keep in git for comparison)
+# Comment out if you want to track these:
+# evaluation-results/
+# metrics/
