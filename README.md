@@ -8,4 +8,4 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 
 ## Testimonials
 
-![Claude is worried about this project](./static/claude-worry@2x.jpg "High Praise")
+![Claude is worried about this project](./static/claude-worry.jpg "High Praise")
