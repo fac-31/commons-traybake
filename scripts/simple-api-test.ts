@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 // ============================================================================
-// SIMPLE PARLIAMENT API TEST (with Treaty endpoint and Historic Hansard)
+// SIMPLE PARLIAMENT API TEST (Treaty + Members + Historic Hansard)
 // ============================================================================
 
 import axios from 'axios';
@@ -19,48 +19,77 @@ function getErrorMessage(error: unknown): string {
 async function simpleTest() {
   console.log('Testing Parliament API endpoints...\n');
 
-  // Test 1: Treaty API
-  console.log('[Test 1] Checking Treaty API...');
-  try {
-    const response = await axios.get('http://your-api-server/api/Treaty', {
-      responseType: 'text', // media type is text/plain
-      timeout: 10000,
+// -------------------------------
+// Test 1: Treaty API (Search: Singapore)
+// -------------------------------
+console.log('[Test 1] Checking Treaty API...');
+try {
+  const response = await axios.get(
+    'https://treaties-api.parliament.uk/api/Treaty?SearchText=singapore',
+    { timeout: 10000 }
+  );
+
+  const data = response.data;
+
+  console.log(`✓ Treaty API working - found ${data.totalResults} results`);
+
+  if (data.items?.length) {
+    data.items.forEach((item: any, index: number) => {
+      const t = item.value;
+      console.log(`\n[${index + 1}] ${t.name}`);
+      console.log(`  ID: ${t.id}`);
+      console.log(`  URI: ${t.uri}`);
+      console.log(`  Lead department: ${t.leadDepartment?.name}`);
+      console.log(`  Parliamentary conclusion: ${t.parliamentaryConclusion}`);
+      console.log(`  Debate scheduled: ${t.debateScheduled}`);
+      console.log(`  Pertinent date: ${t.pertinentDate}`);
+      if (t.webLink) console.log(`  Web link: ${t.webLink}`);
     });
-    console.log(`✓ Treaty API working (status ${response.status})`);
-    console.log('Response:');
-    console.log(response.data);
-  } catch (error: unknown) {
-    console.error('✗ Treaty API failed:', getErrorMessage(error));
   }
-
-  // Test 2: Members API
-  console.log('\n[Test 2] Checking Members API...');
+} catch (error: unknown) {
+  console.error('✗ Treaty API failed:', getErrorMessage(error));
+}
+  // -------------------------------
+  // Test 3: Historic Hansard API
+  // -------------------------------
+  console.log('\n[Test 3] Fetching historic debate content (2002-03-15)...');
   try {
-    const response = await axios.get(
-      'https://members-api.parliament.uk/api/Members/Search?skip=0&take=5',
-      { timeout: 10000 }
-    );
-    console.log(`✓ Members API working - got ${response.data.totalResults} total members`);
-  } catch (error: unknown) {
-    console.error('✗ Members API failed:', getErrorMessage(error));
-  }
-
-  // Test 3: Fetch historic debate content (using Historic Hansard API)
-  console.log('\n[Test 3] Fetching historic debate content...');
-  try {
-    // Known sitting date with debates
     const historicDate = '2002/mar/15';
     const url = `https://api.parliament.uk/historic-hansard/sittings/${historicDate}.js`;
 
     const response = await axios.get(url, { timeout: 10000 });
     const data = response.data;
 
-    if (data?.debates?.length > 0) {
-      const debate = data.debates[0];
-      console.log(`✓ Found historic debate for ${historicDate}`);
-      console.log(`  First debate title: ${debate.title || debate.heading || 'Untitled'}`);
-    } else {
-      console.log(`No debates found for ${historicDate}`);
+    // House of Commons sitting
+    if (data[0]?.house_of_commons_sitting?.top_level_sections?.length) {
+      const commonsSitting = data[0].house_of_commons_sitting;
+      console.log(`✓ Commons sitting found with ${commonsSitting.top_level_sections.length} sections`);
+      const firstSection = commonsSitting.top_level_sections[0].section;
+      console.log(`  First section: ${firstSection.title}`);
+    }
+
+    // Commons Written Answers
+    if (data[1]?.commons_written_answers_sitting?.top_level_sections?.length) {
+      const commonsAnswers = data[1].commons_written_answers_sitting;
+      console.log(`✓ Commons written answers found with ${commonsAnswers.top_level_sections.length} groups`);
+      const firstGroup = commonsAnswers.top_level_sections[0].written_answers_group;
+      console.log(`  First group: ${firstGroup.title || 'Untitled'}`);
+    }
+
+    // House of Lords sitting
+    if (data[2]?.house_of_lords_sitting?.top_level_sections?.length) {
+      const lordsSitting = data[2].house_of_lords_sitting;
+      console.log(`✓ Lords sitting found with ${lordsSitting.top_level_sections.length} sections`);
+      const firstSection = lordsSitting.top_level_sections[0].section;
+      console.log(`  First section: ${firstSection.title}`);
+    }
+
+    // Lords Written Answers
+    if (data[3]?.lords_written_answers_sitting?.top_level_sections?.length) {
+      const lordsAnswers = data[3].lords_written_answers_sitting;
+      console.log(`✓ Lords written answers found with ${lordsAnswers.top_level_sections.length} groups`);
+      const firstGroup = lordsAnswers.top_level_sections[0].written_answers_group;
+      console.log(`  First group: ${firstGroup.title || 'Untitled'}`);
     }
   } catch (error: unknown) {
     console.error('✗ Could not fetch historic debate:', getErrorMessage(error));
