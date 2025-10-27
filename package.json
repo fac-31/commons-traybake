@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:simple-api": "tsx scripts/simple-api-test.ts"
   },
   "repository": {
     "type": "git",
@@ -16,13 +17,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/fac-31/commons-traybake/issues"
   },
   "homepage": "https://github.com/fac-31/commons-traybake#readme",
   "dependencies": {
-    "@getzep/zep-cloud": "^1.0.12"
+    "@getzep/zep-cloud": "^1.0.12",
+    "axios": "^1.12.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",
