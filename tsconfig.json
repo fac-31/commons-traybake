@@ -1,0 +1,14 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "strict": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}
