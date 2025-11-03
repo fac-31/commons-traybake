@@ -31,22 +31,51 @@ export class DebateParser {
     return debates;
   }
 
-  parseHansardDebateItem(item: any, date: Date): Debate | null {
+  parseHansardDebateItem(data: any, date: Date): Debate | null {
     try {
-      const contributions = this.contributionParser.extractFromNode(item);
+      // New Hansard API format
+      if (data.Overview && data.Items) {
+        const overview = data.Overview;
+        const debateId = overview.ExtId || overview.Id?.toString() || this.generateId();
+        const debateDate = new Date(overview.Date || date);
+
+        const contributions = this.contributionParser.parseHansardApiItems(
+          data.Items,
+          debateId,
+          debateDate
+        );
+
+        const fullText = contributions
+          .map((c) => `${c.speaker.name}: ${c.text}`)
+          .join('\n\n');
+
+        return {
+          id: debateId,
+          title: overview.Title || 'Untitled Debate',
+          date: debateDate,
+          type: this.typeInferrer.inferDebateType(overview.Title || ''),
+          parliamentarySession: overview.VolumeNo?.toString() || '',
+          fullText,
+          contributions,
+          hansardReference: this.hansardParser.buildHansardApiReference(overview),
+        };
+      }
+
+      // Legacy format fallback
+      const contributions = this.contributionParser.extractFromNode(data);
       const fullText = contributions
         .map((c) => `${c.speaker.name}: ${c.text}`)
         .join('\n\n');
 
       return {
-        id: item.id || this.generateId(),
-        title: item.title || item.heading || 'Untitled Debate',
+        id: data.id || this.generateId(),
+        title: data.title || data.heading || 'Untitled Debate',
         date,
-        type: this.typeInferrer.inferDebateType(item.title || ''),
-        parliamentarySession: item.session || '',
+        type: this.typeInferrer.inferDebateType(data.title || ''),
+        parliamentarySession: data.session || '',
         fullText,
         contributions,
-        hansardReference: this.hansardParser.buildReference(date, item),
+        hansardReference: this.hansardParser.buildReference(date, data),
       };
     } catch (error) {
       logger.warn('Failed to parse debate:', error);
