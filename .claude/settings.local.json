@@ -5,7 +5,8 @@
       "WebFetch(domain:developer.parliament.uk)",
       "WebFetch(domain:api.parliament.uk)",
       "Bash(curl:*)",
-      "Bash(/tmp/hansard-api-swagger.json)"
+      "Bash(/tmp/hansard-api-swagger.json)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
