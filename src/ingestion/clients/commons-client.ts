@@ -1,6 +1,6 @@
-import { BaseClient } from './base-client';
-import { Debate } from '../../types';
-import { DebateParser } from '../parsers/debate-parser';
+import { BaseClient } from './base-client.js';
+import { Debate } from '../../types/index.js';
+import { DebateParser } from '../parsers/debate-parser.js';
 
 export class CommonsClient extends BaseClient {
   private parser: DebateParser;

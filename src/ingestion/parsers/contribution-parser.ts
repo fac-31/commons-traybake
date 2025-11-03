@@ -1,8 +1,8 @@
-import { Contribution } from '../../types';
-import { SpeakerParser } from './speaker-parser';
-import { TextCleaner } from '../transformers/text-cleaner';
-import { ProceduralExtractor } from '../transformers/procedural-extractor';
-import { TypeInferrer } from '../transformers/type-inferrer';
+import { Contribution } from '../../types/index.js';
+import { SpeakerParser } from './speaker-parser.js';
+import { TextCleaner } from '../transformers/text-cleaner.js';
+import { ProceduralExtractor } from '../transformers/procedural-extractor.js';
+import { TypeInferrer } from '../transformers/type-inferrer.js';
 
 export class ContributionParser {
   private speakerParser: SpeakerParser;
@@ -40,9 +40,37 @@ export class ContributionParser {
     return contributions;
   }
 
+  // Parse new Hansard API format (Items array from /debates/debate endpoint)
+  parseHansardApiItems(items: any[], debateId: string, date: Date): Contribution[] {
+    if (!Array.isArray(items)) return [];
+
+    return items
+      .filter(item => item.ItemType === 'Contribution')
+      .map(item => this.parseHansardApiContribution(item, debateId, date));
+  }
+
+  parseHansardApiContribution(item: any, debateId: string, date: Date): Contribution {
+    const rawText = item.Value || '';
+    const cleanedText = this.textCleaner.clean(rawText);
+
+    return {
+      id: item.ExternalId || item.ItemId?.toString() || this.generateId(),
+      debateId,
+      speaker: this.speakerParser.parseAttributedTo(item.AttributedTo, item.MemberId),
+      text: cleanedText,
+      type: this.typeInferrer.inferFromHansardTag(item.HRSTag),
+      proceduralContext: this.proceduralExtractor.extract(rawText),
+      timestamp: item.Timecode ? new Date(item.Timecode) : date,
+      columnNumber: item.HansardSection || '',
+      previousSpeakerId: undefined,
+      addressingId: undefined,
+      questionNumber: item.UIN || undefined,
+    };
+  }
+
   parseContribution(data: any): Contribution {
     const rawText = data.content || data.text || '';
-    
+
     return {
       id: data.id || this.generateId(),
       debateId: data.debateId || '',

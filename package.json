@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:simple-api": "tsx scripts/simple-api-test.ts"
+    "test:simple-api": "tsx scripts/simple-api-test.ts",
+    "test:api": "tsx scripts/test-parliament-api.ts"
   },
   "repository": {
     "type": "git",
@@ -23,8 +24,14 @@
   },
   "homepage": "https://github.com/fac-31/commons-traybake#readme",
   "dependencies": {
-    "@getzep/zep-cloud": "^1.0.12",
-    "axios": "^1.12.2"
+    "@getzep/zep-cloud": "^3.9.0",
+    "@langchain/community": "^1.0.0",
+    "@langchain/openai": "^0.3.17",
+    "axios": "^1.12.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "neo4j-driver": "^5.27.0",
+    "openai": "^4.77.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",

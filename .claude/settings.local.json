@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:developer.parliament.uk)",
+      "WebFetch(domain:api.parliament.uk)",
+      "Bash(curl:*)",
+      "Bash(/tmp/hansard-api-swagger.json)",
+      "Bash(git add:*)",
+      "Bash(git push)",
+      "Bash(git log:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

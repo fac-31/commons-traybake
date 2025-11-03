@@ -1,8 +1,8 @@
-import { HansardClient } from './clients/hansard-client';
-import { CommonsClient } from './clients/commons-client';
-import { BillsClient } from './clients/bills-client';
-import { Debate, Contribution } from '../types';
-import { logger } from '../utils/logger';
+import { HansardClient } from './clients/hansard-client.js';
+import { CommonsClient } from './clients/commons-client.js';
+import { BillsClient } from './clients/bills-clients.js';
+import { Debate, Contribution } from '../types/index.js';
+import { logger } from '../utils/logger.js';
 
 export interface DateRange {
   start: Date;
@@ -26,51 +26,44 @@ export class ParliamentAPI {
 
   async fetchDebatesByTopic(topic: string, dateRange: DateRange): Promise<Debate[]> {
     logger.info(`Searching for debates about: "${topic}"`);
-    
-    // Strategy: Use Hansard day-by-day, filter by topic
-    const debates: Debate[] = [];
-    const currentDate = new Date(dateRange.start);
 
-    while (currentDate <= dateRange.end) {
-      const dayDebates = await this.hansard.fetchDebatesByDate(currentDate);
-      
-      const relevant = dayDebates.filter(d =>
-        this.matchesTopic(d, topic)
-      );
-
-      debates.push(...relevant);
-      
-      if (relevant.length > 0) {
-        logger.info(`  ${currentDate.toISOString().split('T')[0]}: Found ${relevant.length}`);
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1);
-      
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
+    // Use the new search API endpoint
+    const debates = await this.hansard.searchDebates(topic, dateRange.start, dateRange.end);
 
     logger.info(`Total found: ${debates.length} debates`);
     return debates;
   }
 
+  async fetchWrittenQuestions(topic: string, dateRange: DateRange): Promise<Contribution[]> {
+    logger.info(`Searching for written questions about: "${topic}"`);
+
+    // Search for debates, then filter for question/answer contributions
+    const debates = await this.hansard.searchDebates(topic, dateRange.start, dateRange.end);
+
+    const questions: Contribution[] = [];
+    for (const debate of debates) {
+      const questionContribs = debate.contributions.filter(
+        c => c.type === 'question' || c.type === 'answer'
+      );
+      questions.push(...questionContribs);
+    }
+
+    logger.info(`Total found: ${questions.length} questions/answers`);
+    return questions;
+  }
+
   async fetchBillDebates(billId: string): Promise<Debate[]> {
     logger.info(`Fetching bill debates for: ${billId}`);
-    
+
     const bill = await this.bills.fetchBillById(billId);
     if (!bill) return [];
 
     const stages = await this.bills.fetchBillStages(billId);
-    
+
     // Process each stage...
     // Implementation depends on bills API structure
-    
-    return [];
-  }
 
-  private matchesTopic(debate: Debate, topic: string): boolean {
-    const searchText = `${debate.title} ${debate.fullText}`.toLowerCase();
-    return searchText.includes(topic.toLowerCase());
+    return [];
   }
 }
 
