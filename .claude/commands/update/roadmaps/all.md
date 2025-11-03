@@ -2,8 +2,8 @@
 description: Update project roadmaps
 argument-hint: []
 # allowed-tools:
-# model: claude-sonnet-4-5-20250929
-# disable-model-invocation: true
+model: claude-sonnet-4-5-20250929
+disable-model-invocation: false
 ---
 
 <UpdateRoadmapAll>
@@ -24,7 +24,7 @@ argument-hint: []
   <Roadmaps>
     <Roadmap i="0" type="hub" active="true" path="docs/roadmap/Agents-MVP.md"  />
     <Roadmap i="1" type="route" active="true" path="docs/roadmap/Chunking-MVP.md" />
-    <Roadmap i="2" type="route" active="false" path="docs/roadmap/Gov-API-MVP.md" />
+    <Roadmap i="2" type="route" active="true" path="docs/roadmap/Gov-API-MVP.md" />
     <Roadmap i="3" type="route" active="true" path="docs/roadmap/Ui-MVP.md" />
   </Roadmaps>
   <Loops>
