@@ -24,7 +24,13 @@
   "homepage": "https://github.com/fac-31/commons-traybake#readme",
   "dependencies": {
     "@getzep/zep-cloud": "^1.0.12",
-    "axios": "^1.12.2"
+    "@langchain/community": "^0.3.24",
+    "@langchain/openai": "^0.3.17",
+    "axios": "^1.12.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "neo4j-driver": "^5.27.0",
+    "openai": "^4.77.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",
