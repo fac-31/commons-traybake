@@ -21,17 +21,33 @@
 ---
 
 ## 2. MVP Milestones
+1. **Slash Command Infrastructure** - Configure all custom commands for roadmap management, git workflows, and task execution
+2. **Documentation Automation** - Implement automated roadmap update workflows
 
 ---
 
 ## 3. Beyond MVP: Future Features
+- AI-powered task prioritization based on codebase analysis
+- Integration with external project management tools
+- Automated dependency tracking between roadmap items
+- Smart suggestion engine for next logical tasks
 
 ---
 
 ## 4. Work Record
 ### 4.1. Completed Milestones
+- **Slash Command Infrastructure** ✅ - All 13 custom slash commands configured including:
+  - Roadmap management (`/update/roadmaps/all`, `/update/roadmaps/chain`)
+  - Documentation updates (`/update/docs`)
+  - Git helpers (`/git/conventional-commit`, `/git/pull-request`)
+  - Project analysis (`/project/analyse/explain`, `/project/analyse/critique`)
+  - Task management (`/task/suggest/focussed-task`, `/task/plan/create`, `/task/execute/minima`)
+  - Style utilities (`/style/fix-layout`, `/style/unify-style`)
 
 ### 4.2. Completed Tasks
 #### 4.2.1. Record of Past Deadlines
 
 #### 4.2.2. Record of Other Completed Tasks
+- Created comprehensive roadmap template structure for 4 MVP areas
+- Implemented roadmap update automation with task migration logic
+- Configured project-wide .claude/CLAUDE.md with parliamentary RAG context
