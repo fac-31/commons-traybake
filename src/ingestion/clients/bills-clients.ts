@@ -1,5 +1,5 @@
-import { BaseClient } from './base-client';
-import { Debate } from '../../types';
+import { BaseClient } from './base-client.js';
+import { Debate } from '../../types/index.js';
 
 export class BillsClient extends BaseClient {
   constructor() {

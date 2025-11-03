@@ -1,8 +1,8 @@
-import { HansardClient } from './clients/hansard-client';
-import { CommonsClient } from './clients/commons-client';
-import { BillsClient } from './clients/bills-client';
-import { Debate, Contribution } from '../types';
-import { logger } from '../utils/logger';
+import { HansardClient } from './clients/hansard-client.js';
+import { CommonsClient } from './clients/commons-client.js';
+import { BillsClient } from './clients/bills-clients.js';
+import { Debate, Contribution } from '../types/index.js';
+import { logger } from '../utils/logger.js';
 
 export interface DateRange {
   start: Date;

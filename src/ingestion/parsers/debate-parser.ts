@@ -1,8 +1,8 @@
 import { Debate, DebateType } from '../../types/index.js';
 import { ContributionParser } from './contribution-parser.js';
-import { TypeInferrer } from '../transformers/type-inferrer';
-import { HansardReferenceParser } from './hansard-reference-parser';
-import { logger } from '../../utils/logger';
+import { TypeInferrer } from '../transformers/type-inferrer.js';
+import { HansardReferenceParser } from './hansard-reference-parser.js';
+import { logger } from '../../utils/logger.js';
 
 export class DebateParser {
   private contributionParser: ContributionParser;
