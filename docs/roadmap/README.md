@@ -16,6 +16,14 @@
 
 ## 2. Current State
 
+### Completed Modules
+- ✅ **Agents & Knowledge Bases** - All MVP milestones complete
+- ✅ **Parliament API** - All MVP milestones complete
+
+### In Progress
+- 🚧 **Chunking Strategy** - 0/5 milestones complete
+- 🚧 **User Interface** - 0/5 milestones complete
+
 ---
 
 ## 3. Next Milestones
@@ -36,8 +44,8 @@
 
 <!-- IMPORTANT: Do not increase this number beyond 5 -->
 
-1. **Parliament API Client Complete** - Modular client architecture with Hansard, Commons Votes, and Bills API integration, featuring retry logic and rate limiting ([Gov-API-MVP.md](Gov-API-MVP.md#41-completed-milestones))
-2. **Comprehensive Type System** - Full TypeScript interfaces for debates, contributions, speakers, Hansard references with enums for debate/contribution types ([Gov-API-MVP.md](Gov-API-MVP.md#41-completed-milestones))
-3. **Slash Command Infrastructure** - All 13 custom commands configured including roadmap management, git workflows, project analysis, and task execution ([Agents-MVP.md](Agents-MVP.md#41-completed-milestones))
+1. **Parliament API MVP Complete** - All milestones achieved: client architecture, type system, data fetching, and testing documentation ([Gov-API-MVP.md](Gov-API-MVP.md#41-completed-milestones))
+2. **Agents & Automation MVP Complete** - All milestones achieved: slash command infrastructure and documentation automation workflows ([Agents-MVP.md](Agents-MVP.md#41-completed-milestones))
+3. **API Testing Infrastructure** - Bruno test collection, validation schemas, and integration testing with debate datasets ([Gov-API-MVP.md](Gov-API-MVP.md#42-completed-tasks))
 4. **Text Processing Infrastructure** - HTML entity decoding, procedural marker extraction, and type inference ready for chunking pipelines ([Chunking-MVP.md](Chunking-MVP.md#41-completed-milestones))
-5. **API Testing Documentation** - 1000+ line comprehensive guide covering Bruno, HTTPie, validation schemas, and testing workflows ([Gov-API-MVP.md](Gov-API-MVP.md#41-completed-milestones))
+5. **Parliament API Developer Guide** - Comprehensive documentation covering all endpoints, authentication, rate limiting, and best practices

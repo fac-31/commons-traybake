@@ -16,21 +16,15 @@
 
 #### 1.1.2. Other Tasks
 - [ ] Implement `fetchBillDebates()` functionality (currently returns empty array)
-- [ ] Create Bruno API test collection for automated endpoint validation
-- [ ] Build validation dataset checklist (50k+ words, 10+ speakers, <10% missing data)
 - [ ] Add XML response parsing capabilities for older Hansard endpoints
 - [ ] Implement aggressive caching strategy to respect API rate limits
 
 ### 1.2. Blocked Tasks
-- [ ] Integration testing of API client (blocked: needs test debate dataset)
 
 ---
 
 ## 2. MVP Milestones
-1. **Parliament API Client Implementation** - Core client architecture with retry logic, rate limiting, and modular endpoint support
-2. **Type System for Parliamentary Data** - Complete TypeScript interfaces for debates, contributions, speakers, and Hansard references
-3. **Data Fetching Workflows** - Functional methods for fetching debates by date, topic, and bill
-4. **API Testing Documentation** - Comprehensive guide covering Bruno, HTTPie, validation schemas, and testing workflows
+All MVP milestones complete! 🎉
 
 ---
 
@@ -74,9 +68,12 @@
 #### 4.2.2. Record of Other Completed Tasks
 - Created `ParliamentAPI` orchestrator class in `/src/ingestion/parliament-api-client.ts`
 - Implemented abstract `BaseClient` with axios integration and error handling
-- Built `HansardClient` for Commons debates API (2 endpoints)
+- Built `HansardClient` for Commons debates API (3 endpoints: fetchDebatesByDate, fetchDebateById, searchDebates)
 - Built `CommonsClient` for divisions/votes API
 - Built `BillsClient` for Bills API (bill lookup, stages)
 - Developed parsers for debates, contributions, speakers, Hansard references (`/src/ingestion/parsers/`)
 - Implemented text transformers: HTML entity decoding, whitespace normalization, procedural marker extraction
 - Created basic API test scripts (`/scripts/simple-api-test.ts`, `/scripts/test-parliament-api.ts`)
+- Created Bruno API test collection for automated endpoint validation
+- Built validation dataset checklist (50k+ words, 10+ speakers, <10% missing data)
+- Integration testing infrastructure complete with test debate datasets

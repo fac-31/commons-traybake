@@ -21,8 +21,7 @@
 ---
 
 ## 2. MVP Milestones
-1. **Slash Command Infrastructure** - Configure all custom commands for roadmap management, git workflows, and task execution
-2. **Documentation Automation** - Implement automated roadmap update workflows
+All MVP milestones complete! 🎉
 
 ---
 
@@ -43,6 +42,7 @@
   - Project analysis (`/project/analyse/explain`, `/project/analyse/critique`)
   - Task management (`/task/suggest/focussed-task`, `/task/plan/create`, `/task/execute/minima`)
   - Style utilities (`/style/fix-layout`, `/style/unify-style`)
+- **Documentation Automation** ✅ - Automated roadmap update workflows implemented with task migration logic between sections
 
 ### 4.2. Completed Tasks
 #### 4.2.1. Record of Past Deadlines
