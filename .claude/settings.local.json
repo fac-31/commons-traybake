@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(domain:developer.parliament.uk)",
       "WebFetch(domain:api.parliament.uk)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(/tmp/hansard-api-swagger.json)"
     ],
     "deny": [],
     "ask": []
