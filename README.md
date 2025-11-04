@@ -14,10 +14,12 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 ## 2. Project Docs
 
 ### 2.1. Project Overview
+
 - **[What We're Building (Non-Technical)](docs/low-tech-project-description.md)** - Understanding the project without code: why chunking decisions matter, how they shape political discourse, and what makes this uncomfortable
 - **[Technical Implementation Plan](docs/project-plan.md)** - Complete technical architecture: stack decisions, chunking strategies, Neo4j schema, RAG pipeline design, and phase-by-phase implementation guide
 
 ### 2.2. Implementation & Roadmap
+
 - **[Roadmap Overview](docs/roadmap/README.md)** - Current status across all modules, next milestones, and recent wins
 - **[Chunking Strategy Roadmap](docs/roadmap/Chunking-MVP.md)** - Progress on the four chunking pipelines (2/4 complete), MVP milestones, and future features
 - **[User Interface Roadmap](docs/roadmap/Ui-MVP.md)** - SvelteKit frontend plans, comparative visualization, and citation display
@@ -25,6 +27,7 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 - **[Agents & Automation Roadmap](docs/roadmap/Agents-MVP.md)** - Slash commands and documentation workflows (complete)
 
 ### 2.3. API & Testing
+
 - **[Parliament API Developer Guide](docs/PARLIAMENT_API_GUIDE.md)** - Complete reference for all UK Parliament API endpoints: Hansard, Members, Votes, Committees, and Bills
 - **[API Testing Guide](docs/api-testing-guide.md)** - Comprehensive testing workflows using Bruno and HTTPie, validation patterns, and integration strategies
 
