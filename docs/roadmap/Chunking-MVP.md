@@ -15,7 +15,7 @@
 #### 1.1.1. Due Tasks
 
 #### 1.1.2. Other Tasks
-- [ ] Implement **Semantic 256** chunking pipeline (max 256 tokens, aggressive splitting)
+
 - [ ] Implement **Late Chunking 1024** pipeline (embed full debate first, then chunk with 70/30 context blending)
 - [ ] Implement **Late Chunking 256** pipeline (same late chunking, 256 token chunks)
 - [ ] Build chunk storage layer for Neo4j vector index
@@ -30,7 +30,7 @@
 ---
 
 ## 2. MVP Milestones
-1. **Semantic Chunking Foundation** ✅ (1024 variant complete) - Integrate LangChain SemanticChunker with OpenAI embeddings, implement both 1024 and 256 token variants
+1. **Semantic Chunking Foundation** ✅ - Integrate LangChain SemanticChunker with OpenAI embeddings, implement both 1024 and 256 token variants
 2. **Late Chunking Innovation** - Implement contextual embedding blending (70% chunk + 30% debate context) for both token sizes
 3. **Parliamentary Boundary Handling** ✅ - Ensure speaker changes are preserved as sacred boundaries in standard semantic chunking
 4. **Neo4j Vector Storage** - Store chunks with embeddings, metadata, and graph relationships (PRECEDES, RESPONDS_TO, MENTIONS_SAME_TOPIC)
@@ -58,14 +58,16 @@
   - Type inference for debates, contributions, speaker roles (`/src/ingestion/transformers/type-inferrer.ts`)
   - Full parser suite for parliamentary data structures
 
-- **Semantic Chunking Foundation (1024 variant)** ✅ - First chunking pipeline operational:
+- **Semantic Chunking Foundation** ✅ - Both 1024 and 256 token variants operational:
   - Base chunking architecture with abstract `ChunkingPipeline` class (`/src/ingestion/chunkers/base-chunker.ts`)
   - `Chunk` interface with full parliamentary metadata (speaker, party, Hansard reference, embeddings)
   - `SemanticPipeline1024` implementation with tiktoken-based token counting (`/src/ingestion/chunkers/semantic-1024.ts`)
+  - `SemanticPipeline256` implementation for aggressive splitting (`/src/ingestion/chunkers/semantic-256.ts`)
   - OpenAI text-embedding-3-large integration (3,072 dimensions)
   - Speaker boundary preservation (each chunk contains single speaker)
-  - Token limit enforcement (validated max 1022/1024 tokens in testing)
+  - Token limit enforcement (validated max 1022/1024 and 256 tokens in testing)
   - Test script with comprehensive analytics (`scripts/test-semantic-chunking.ts`)
+  - Comparative test script for side-by-side analysis (`scripts/test-semantic-comparison.ts`)
 
 - **Parliamentary Boundary Handling** ✅ - Speaker boundaries preserved:
   - Each contribution processed separately to prevent cross-speaker chunks
@@ -89,3 +91,6 @@
 - Built speaker boundary preservation logic for semantic chunking
 - Improved speaker party data extraction and normalization
 - Created comprehensive test suite with chunk analysis (size, speaker diversity, party distribution)
+- Implemented **Semantic 256** chunking pipeline (max 256 tokens, aggressive splitting)
+- Built comparative test script for 1024 vs 256 strategy analysis
+- Created chunkers index for easier imports and pipeline management

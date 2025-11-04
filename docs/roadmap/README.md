@@ -30,11 +30,11 @@
 > [!NOTE]
 > The 5 most significant or important tasks to tackle next.
 
-1. **[Semantic 256 Chunking](Chunking-MVP.md#2-mvp-milestones)** - Implement aggressive 256 token semantic chunking variant to complete Milestone 1
-2. **[Late Chunking Innovation](Chunking-MVP.md#2-mvp-milestones)** - Implement contextual embedding blending (70% chunk + 30% debate context) for both token sizes
+1. **[Late Chunking Innovation](Chunking-MVP.md#2-mvp-milestones)** - Implement contextual embedding blending (70% chunk + 30% debate context) for both token sizes (1024 and 256)
+2. **[Chunk Quality Validation](Chunking-MVP.md#2-mvp-milestones)** - Verify chunk overlap, speaker diversity, and metadata integrity across all 4 strategies
 3. **[Neo4j Vector Storage](Chunking-MVP.md#2-mvp-milestones)** - Set up Neo4j 5.11+ instance and implement chunk storage with graph relationships (PRECEDES, RESPONDS_TO, MENTIONS_SAME_TOPIC)
 4. **[SvelteKit Foundation](Ui-MVP.md#2-mvp-milestones)** - Initialize SvelteKit project structure with TypeScript configuration and basic routing
-5. **[Comparative Results Grid](Ui-MVP.md#2-mvp-milestones)** - Build 2×2 UI layout showing all 4 chunking strategies side-by-side with divergence visualization
+5. **[Query Interface](Ui-MVP.md#2-mvp-milestones)** - User input for parliamentary queries with context-aware suggestions
 
 ---
 
@@ -44,7 +44,7 @@
 
 <!-- IMPORTANT: Do not increase this number beyond 5 -->
 
-1. **Semantic Chunking Foundation (1024 variant)** - First chunking pipeline operational with tiktoken token counting, OpenAI text-embedding-3-large (3,072 dims), speaker boundary preservation, validated max 1022/1024 tokens ([Chunking-MVP.md](Chunking-MVP.md#41-completed-milestones))
+1. **Semantic Chunking Foundation (COMPLETE)** - Both 1024 and 256 token variants operational with tiktoken token counting, OpenAI text-embedding-3-large (3,072 dims), speaker boundary preservation, comparative testing suite ([Chunking-MVP.md](Chunking-MVP.md#41-completed-milestones))
 2. **Parliament API MVP Complete** - All milestones achieved: client architecture, type system, data fetching, and testing documentation ([Gov-API-MVP.md](Gov-API-MVP.md#41-completed-milestones))
 3. **Agents & Automation MVP Complete** - All milestones achieved: slash command infrastructure and documentation automation workflows ([Agents-MVP.md](Agents-MVP.md#41-completed-milestones))
 4. **API Testing Infrastructure** - Bruno test collection, validation schemas, and integration testing with debate datasets ([Gov-API-MVP.md](Gov-API-MVP.md#42-completed-tasks))
