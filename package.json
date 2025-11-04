@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:simple-api": "tsx scripts/simple-api-test.ts",
-    "test:api": "tsx scripts/test-parliament-api.ts"
+    "test:api": "tsx scripts/test-parliament-api.ts",
+    "test:chunking": "tsx scripts/test-semantic-chunking.ts"
   },
   "repository": {
     "type": "git",
