@@ -32,10 +32,22 @@ OPENAI_API_KEY=your_actual_openai_key_here
 
 ### Running the Chunking Pipeline
 
-Test the semantic chunking implementation:
+Test a single semantic chunking strategy (1024 tokens):
 ```bash
 npm run test:chunking
 ```
+
+Compare both semantic strategies side-by-side (1024 vs 256 tokens):
+```bash
+npm run test:chunking:compare
+```
+
+This will show:
+- Chunk count differences between strategies
+- Token granularity analysis
+- Processing time comparisons
+- Speaker and party distribution
+- Sample chunks from each strategy
 
 ## Testimonials
 
