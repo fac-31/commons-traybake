@@ -32,7 +32,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "neo4j-driver": "^5.27.0",
-    "openai": "^4.77.3"
+    "openai": "^4.77.3",
+    "tiktoken": "^1.0.22"
   },
   "devDependencies": {
     "@types/express": "^5.0.4",

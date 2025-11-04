@@ -1,5 +1,6 @@
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { encoding_for_model } from 'tiktoken';
 import type { Debate, Contribution } from '../../types/index.js';
 import { ChunkingPipeline, type Chunk, type ChunkingStrategy } from './base-chunker.js';
 
@@ -18,9 +19,13 @@ export class SemanticPipeline1024 extends ChunkingPipeline {
 
   private embeddings: OpenAIEmbeddings;
   private textSplitter: RecursiveCharacterTextSplitter;
+  private tokenizer: ReturnType<typeof encoding_for_model>;
 
   constructor(openaiApiKey?: string) {
     super();
+
+    // Initialize tiktoken for accurate token counting
+    this.tokenizer = encoding_for_model('gpt-3.5-turbo');
 
     // Initialize OpenAI embeddings with text-embedding-3-large model
     this.embeddings = new OpenAIEmbeddings({
@@ -32,10 +37,10 @@ export class SemanticPipeline1024 extends ChunkingPipeline {
     // Initialize text splitter with semantic separators
     // Prioritize paragraph breaks, then sentences, then words
     this.textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: this.maxTokens * 4, // Rough character estimate (1 token ≈ 4 chars)
-      chunkOverlap: 100, // Small overlap for context
+      chunkSize: this.maxTokens,
+      chunkOverlap: 50, // Small overlap for context
       separators: ['\n\n', '\n', '. ', '! ', '? ', '; ', ', ', ' ', ''],
-      lengthFunction: (text: string) => this.estimateTokens(text),
+      lengthFunction: (text: string) => this.countTokens(text),
     });
   }
 
@@ -55,7 +60,35 @@ export class SemanticPipeline1024 extends ChunkingPipeline {
 
       // Process each chunk
       for (const chunkText of contributionChunks) {
-        const tokenCount = this.estimateTokens(chunkText);
+        // Skip empty or whitespace-only chunks
+        if (!chunkText.trim()) {
+          continue;
+        }
+
+        const tokenCount = this.countTokens(chunkText);
+
+        // Skip if chunk still exceeds limit (shouldn't happen, but safety check)
+        if (tokenCount > this.maxTokens) {
+          console.warn(`Warning: Chunk ${sequenceNumber} has ${tokenCount} tokens, exceeding limit of ${this.maxTokens}`);
+          // Truncate the chunk to max tokens
+          const truncatedText = this.truncateToTokenLimit(chunkText, this.maxTokens);
+          const truncatedTokenCount = this.countTokens(truncatedText);
+
+          const embedding = await this.embeddings.embedQuery(truncatedText);
+          const chunk: Chunk = {
+            id: this.generateChunkId(debate.id, sequenceNumber),
+            text: truncatedText,
+            embedding,
+            strategy: this.strategyName,
+            tokenCount: truncatedTokenCount,
+            sequenceNumber,
+            createdAt: new Date(),
+            ...this.createChunkMetadata(contribution, debate),
+          };
+          chunks.push(chunk);
+          sequenceNumber++;
+          continue;
+        }
 
         // Generate embedding for this chunk
         const embedding = await this.embeddings.embedQuery(chunkText);
@@ -98,8 +131,14 @@ export class SemanticPipeline1024 extends ChunkingPipeline {
     contribution: Contribution,
     debate: Debate
   ): Promise<string[]> {
-    const text = contribution.text;
-    const tokenCount = this.estimateTokens(text);
+    const text = contribution.text.trim();
+
+    // Skip empty contributions
+    if (!text) {
+      return [];
+    }
+
+    const tokenCount = this.countTokens(text);
 
     // If within token limit, return as-is
     if (tokenCount <= this.maxTokens) {
@@ -112,16 +151,29 @@ export class SemanticPipeline1024 extends ChunkingPipeline {
   }
 
   /**
-   * Estimate token count for a text string
-   * Uses a simple heuristic: ~4 characters per token
-   * This is approximate but sufficient for chunking decisions
-   *
-   * @param text - Text to estimate
-   * @returns Estimated token count
+   * Count tokens accurately using tiktoken
+   * @param text - Text to count tokens for
+   * @returns Exact token count
    */
-  private estimateTokens(text: string): number {
-    // Simple approximation: 1 token ≈ 4 characters for English text
-    // More accurate would be to use tiktoken, but this is fast and good enough
-    return Math.ceil(text.length / 4);
+  private countTokens(text: string): number {
+    const tokens = this.tokenizer.encode(text);
+    return tokens.length;
+  }
+
+  /**
+   * Truncate text to a specific token limit
+   * @param text - Text to truncate
+   * @param maxTokens - Maximum number of tokens
+   * @returns Truncated text
+   */
+  private truncateToTokenLimit(text: string, maxTokens: number): string {
+    const tokens = this.tokenizer.encode(text);
+    if (tokens.length <= maxTokens) {
+      return text;
+    }
+
+    const truncatedTokens = tokens.slice(0, maxTokens);
+    const truncatedText = this.tokenizer.decode(truncatedTokens);
+    return truncatedText;
   }
 }
