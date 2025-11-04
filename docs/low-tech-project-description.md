@@ -20,10 +20,12 @@ The uncomfortable truth nobody talks about: **how you break up those documents c
 
 We're taking transcripts from UK Parliamentary debates (Prime Minister's Questions, policy debates, committee hearings - the full theatrical shambles) and processing them in four different ways:
 
-1. **Large chunks** (roughly 1,024 words each) - lots of context around each statement
-2. **Small chunks** (roughly 256 words each) - more focused, less surrounding context
-3. **Large chunks with source awareness** - same as #1, but the system "knows" where each chunk came from
-4. **Small chunks with source awareness** - same as #2, but context-aware
+1. **Large chunks** (1,024 tokens each) ✅ **COMPLETE** - lots of context around each statement
+2. **Small chunks** (256 tokens each) ✅ **COMPLETE** - more focused, less surrounding context
+3. **Large chunks with source awareness** (1,024 tokens, late chunking) - same as #1, but the system "knows" where each chunk came from
+4. **Small chunks with source awareness** (256 tokens, late chunking) - same as #2, but context-aware
+
+**Current Status**: The first two semantic chunking strategies are operational and can be tested with real parliamentary debates. The late chunking variants (strategies 3 and 4) are next on the roadmap.
 
 Then we let people ask the same question to all four versions simultaneously and compare what they get back.
 
@@ -42,9 +44,11 @@ All of these contextual signals can get lost or preserved depending on how we ch
 
 ## What You'll Actually See
 
-Imagine you visit our website and type in: "What is the government's position on NHS privatisation?"
+**Current Status**: You can currently test the chunking strategies directly using command-line tools that process real parliamentary debates and show detailed comparisons. A web interface is planned for the next phase.
 
-You'll see **four different answers** displayed side by side, each one pulled from a different version of the same parliamentary debates. 
+When the web interface is complete, you'll be able to type in: "What is the government's position on NHS privatisation?"
+
+You'll see **four different answers** displayed side by side, each one pulled from a different version of the same parliamentary debates.
 
 You might find that:
 
@@ -139,6 +143,8 @@ The answer to that question is what our project is about.
 ## The Slightly Chaotic Underpinning
 
 We're three people building this over about two weeks as an experimental/educational project. We're deliberately not optimizing away the messiness. The contradictions, the attribution failures, the chunks that lose critical context - these aren't bugs we're trying to fix. They're the findings.
+
+**Progress Update**: Two of four chunking strategies are complete and operational. The semantic chunking pipelines (1,024 and 256 tokens) are processing real parliamentary debates, preserving speaker boundaries, and generating embeddings. You can test these right now by running the comparative analysis scripts included in the repository.
 
 The goal isn't to build a system that works better. It's to build a system that makes visible how all such systems work, and to demonstrate that those workings encode choices about whose meaning gets preserved.
 

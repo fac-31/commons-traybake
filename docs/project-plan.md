@@ -287,51 +287,85 @@ interface Contribution {
 
 ### Phase 1: Build Four Processing Pipelines (Days 2-3)
 
+**Status: 50% Complete** ✅ Semantic 1024 and 256 implemented | 🚧 Late chunking variants in progress
+
 **Task: Parallel pipeline architecture**
 
 ```typescript
-// /src/lib/processing/pipelines/
+// /src/ingestion/chunkers/
 
+// ✅ IMPLEMENTED
 abstract class ChunkingPipeline {
-  abstract strategyName: ChunkingStrategy;
+  abstract readonly strategyName: ChunkingStrategy;
+  abstract readonly maxTokens: number;
   abstract process(debate: Debate): Promise<Chunk[]>;
   
-  async ingestToVectorStore(chunks: Chunk[]) {
-    // Store in Neo4j with strategy label
-    await neo4j.createChunks(chunks, this.strategyName);
-  }
+  // Helper methods for ID generation, metadata creation, validation
+  protected generateChunkId(debateId: string, sequenceNumber: number): string;
+  protected createChunkMetadata(contribution: Contribution, debate: Debate);
+  protected validateSpeakerBoundaries(chunks: Chunk[]): boolean;
+  protected linkChunks(chunks: Chunk[]): Chunk[];
 }
 
+// ✅ IMPLEMENTED: /src/ingestion/chunkers/semantic-1024.ts
 class SemanticPipeline1024 extends ChunkingPipeline {
-  strategyName = "semantic_1024";
+  readonly strategyName = "semantic_1024";
+  readonly maxTokens = 1024;
   
-  async process(debate: Debate) {
-    const splitter = new SemanticChunker({
-      maxTokens: 1024,
-      embeddingModel: embedder
-    });
-    return await splitter.split(debate);
+  async process(debate: Debate): Promise<Chunk[]> {
+    // Uses RecursiveCharacterTextSplitter with tiktoken for accurate token counting
+    // Preserves speaker boundaries - each contribution processed separately
+    // Generates OpenAI text-embedding-3-large embeddings (3,072 dimensions)
+    // Returns chunks with full parliamentary metadata
   }
 }
 
-// Repeat for Semantic256, LateChunking1024, LateChunking256
+// ✅ IMPLEMENTED: /src/ingestion/chunkers/semantic-256.ts
+class SemanticPipeline256 extends ChunkingPipeline {
+  readonly strategyName = "semantic_256";
+  readonly maxTokens = 256;
+  
+  async process(debate: Debate): Promise<Chunk[]> {
+    // Aggressive splitting with smaller chunk overlap (20 tokens)
+    // Same speaker boundary preservation as 1024 variant
+    // Creates 2-4x more chunks for fine-grained retrieval
+  }
+}
+
+// 🚧 TODO: LateChunkingPipeline1024, LateChunkingPipeline256
 ```
 
-**Run all four pipelines on your dataset:**
+**Testing**: Run `npm run test:chunking:compare` to see both semantic strategies in action.
+
+**Current implementation - run completed pipelines:**
+```typescript
+// ✅ Available now
+import { SemanticPipeline1024, SemanticPipeline256 } from './src/ingestion/chunkers/index.js';
+
+// Test single pipeline
+const pipeline1024 = new SemanticPipeline1024();
+const chunks = await pipeline1024.process(debate);
+// chunks contains: embeddings, token counts, speaker metadata, Hansard refs
+
+// Or run comparison test
+// npm run test:chunking:compare
+```
+
+**Future: Run all four pipelines on your dataset (when late chunking complete):**
 ```typescript
 async function processCorpus(debates: Debate[]) {
   const pipelines = [
-    new SemanticPipeline1024(),
-    new SemanticPipeline256(),
-    new LateChunkingPipeline1024(),
-    new LateChunkingPipeline256()
+    new SemanticPipeline1024(),        // ✅ Complete
+    new SemanticPipeline256(),         // ✅ Complete
+    new LateChunkingPipeline1024(),    // 🚧 In progress
+    new LateChunkingPipeline256()      // 🚧 In progress
   ];
   
   for (const pipeline of pipelines) {
     console.log(`Processing with ${pipeline.strategyName}...`);
     for (const debate of debates) {
       const chunks = await pipeline.process(debate);
-      await pipeline.ingestToVectorStore(chunks);
+      // TODO: await pipeline.ingestToVectorStore(chunks);
     }
   }
 }
@@ -772,24 +806,24 @@ Since you're all working across all areas, parallelization strategy:
 
 const implementation = {
   day1: [
-    "Set up SvelteKit project with TypeScript",
-    "Install LangChain, Neo4j driver, OpenAI client",
-    "Create Parliament API client with basic endpoints",
-    "Pull first test dataset (100 debate contributions)",
+    "❌ Set up SvelteKit project with TypeScript",
+    "✅ Install LangChain, Neo4j driver, OpenAI client",
+    "✅ Create Parliament API client with basic endpoints",
+    "✅ Pull first test dataset (100 debate contributions)",
   ],
   
   day2: [
-    "Design Neo4j schema for chunks + metadata",
-    "Implement base ChunkingPipeline class",
-    "Build semantic chunker with 1024 token limit",
-    "Test ingestion of 1 debate through pipeline",
+    "❌ Design Neo4j schema for chunks + metadata",
+    "✅ Implement base ChunkingPipeline class",
+    "✅ Build semantic chunker with 1024 token limit",
+    "✅ Test ingestion of 1 debate through pipeline",
   ],
   
   day3: [
-    "Implement remaining three chunking strategies",
-    "Process full test dataset through all pipelines",
-    "Verify Neo4j contains all four vector stores",
-    "Build comparative retrieval function",
+    "⚠️  Implement remaining three chunking strategies (2/4 complete: semantic 256 ✅, late chunking 1024/256 🚧)",
+    "⚠️  Process full test dataset through semantic pipelines (semantic strategies ready, late chunking pending)",
+    "❌ Verify Neo4j contains all four vector stores",
+    "❌ Build comparative retrieval function",
   ],
   
   day4: [
