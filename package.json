@@ -12,7 +12,8 @@
     "test:api": "tsx scripts/test-parliament-api.ts",
     "test:chunking": "tsx scripts/test-semantic-chunking.ts",
     "test:chunking:compare": "tsx scripts/test-semantic-comparison.ts",
-    "test:late-chunking": "tsx scripts/test-late-chunking.ts"
+    "test:late-chunking": "tsx scripts/test-late-chunking.ts",
+    "test:validation": "tsx scripts/test-chunk-validation.ts"
   },
   "repository": {
     "type": "git",
