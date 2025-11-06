@@ -93,3 +93,6 @@ embeddings-cache/
 # Comment out if you want to track these:
 # evaluation-results/
 # metrics/
+
+# Validation reports (generated locally)
+validation-reports/
