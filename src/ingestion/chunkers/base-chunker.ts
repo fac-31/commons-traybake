@@ -25,32 +25,51 @@ export interface Chunk {
   /** Which chunking strategy produced this chunk */
   strategy: ChunkingStrategy;
 
+  /** Alternative name for storage compatibility */
+  chunkingStrategy?: string;
+
   /** Source debate information */
   debateId: string;
   debateTitle: string;
   debateDate: Date;
   debateType: string;
 
+  /** Flat string versions for Neo4j storage */
+  debate?: string;  // debateTitle
+  date?: string;    // debateDate as ISO string
+
   /** Speaker information */
   speaker: Speaker;
+
+  /** Flat string versions for Neo4j storage */
+  speakerName?: string;
+  speakerParty?: string;
+  speakerRole?: string;
 
   /** Hansard reference for citation */
   hansardReference: HansardReference;
 
+  /** Flat string version for Neo4j storage */
+  hansardReferenceText?: string;
+
   /** Position in the debate */
   sequenceNumber: number;
+  sequence?: number;  // Alternative name for storage
   previousChunkId?: string;
   nextChunkId?: string;
 
   /** Metadata for analysis */
   tokenCount: number;
   contributionIds: string[]; // Which contributions this chunk spans
+  contributionType?: string;  // For storage
 
   /** Procedural context (for late chunking strategies) */
   proceduralMarkers?: string[];
+  proceduralContext?: string;  // For storage (serialized)
 
   /** For late chunking: the debate-level context embedding */
   debateContextEmbedding?: number[];
+  debateContext?: number[];  // Alternative name for storage
 
   /** Timestamp for when this chunk was created */
   createdAt: Date;
