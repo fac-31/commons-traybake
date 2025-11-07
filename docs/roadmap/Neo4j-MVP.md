@@ -76,13 +76,17 @@ All MVP milestones complete! 🎉
 
 - **Schema Initialization** ✅ - Full database schema with constraints and indexes:
   - Node constraints: unique chunk IDs, required chunking strategy (`/src/storage/schema.ts`)
-  - Vector indexes: 4 indexes (one per strategy), 3072 dimensions, cosine similarity
+  - Vector indexes: 5 total (4 strategy-specific + 1 unified), 3072 dimensions, cosine similarity
+  - Strategy-specific labels: :Semantic1024, :Semantic256, :Late1024, :Late256
+  - Hybrid indexing: Each node indexed by both strategy-specific and unified indexes
   - Property indexes: speaker, party, debate, date, strategy, Hansard reference
   - Schema verification and status checking
   - Reset functionality for development
 
 - **Chunk Storage Service** ✅ - Efficient chunk storage and retrieval:
-  - Single chunk storage (`/src/storage/chunk-storage.ts`)
+  - Single chunk storage with dual labels (`/src/storage/chunk-storage.ts`)
+  - Object flattening: Serializes complex objects (Speaker, HansardReference) to Neo4j primitives
+  - Strategy-to-label mapping: Maps strategy names to Neo4j labels
   - Batch storage with 100-chunk batches for performance
   - PRECEDES relationship creation to maintain debate flow
   - Storage statistics and analytics
@@ -114,21 +118,33 @@ All MVP milestones complete! 🎉
 - Created Docker Compose configuration for local Neo4j (optional, Aura recommended)
 - Updated .env template with Neo4j connection variables
 - Built Neo4j client with singleton pattern and connection pooling
+- Fixed singleton pattern: removed `forceNew` workaround, added proper `reset()` method
+- Fixed `verifyConnection()` to handle Neo4j Integer type with `.toInt()`
 - Implemented schema initialization with constraints and indexes
-- Created 4 vector indexes (one per chunking strategy, 3072 dimensions each)
-- Built chunk storage service with batch operations
+- Created strategy-specific node labels: :Semantic1024, :Semantic256, :Late1024, :Late256
+- Implemented hybrid vector indexing: 5 indexes (4 strategy-specific + 1 unified)
+- Built chunk storage service with batch operations and object flattening
+- Created `flattenChunk()` serialization layer for Neo4j primitive types
+- Extended Chunk interface with optional flat fields for storage compatibility
+- Implemented dual-label node creation (:Chunk + strategy label)
 - Implemented PRECEDES relationships to maintain debate flow
 - Created vector search service with OpenAI embedding integration
+- Updated vector search to use strategy-specific indexes
 - Built comparative search across all 4 strategies
+- Added cross-strategy similarity search using unified index
 - Added storage statistics and analytics
 - Created test script for Neo4j setup verification
 - Built population script to load all 4 chunking strategies
 - Created vector search test script with divergence analysis
 - Implemented database reset utility
+- Fixed dotenv imports across all scripts to use `import 'dotenv/config'`
+- Restored test scripts to use Neo4jClient singleton instead of raw driver
 - Added npm scripts: test:neo4j:setup, test:neo4j:populate, test:neo4j:search, test:neo4j:reset
 - Wrote comprehensive Neo4j setup guide with troubleshooting
 - Updated main README with Neo4j setup instructions
 - Exported storage module with clean index file
+- Tested full pipeline: 154 chunks stored, all 5 indexes online, comparative search working
+- Verified divergence: 8-25% overlap between strategies on test queries
 
 ---
 
@@ -136,28 +152,71 @@ All MVP milestones complete! 🎉
 
 ### Vector Index Strategy
 
-Each chunking strategy has its own vector index:
+**Hybrid Approach - Strategy-Specific Labels + Unified Index**
+
+The implementation uses a dual-label system where each chunk has two labels:
+- Base label: `:Chunk` (all chunks)
+- Strategy label: `:Semantic1024`, `:Semantic256`, `:Late1024`, or `:Late256`
+
+This enables **5 vector indexes total**:
+
+**Strategy-Specific Indexes (4):**
 ```
-semantic_1024_vector_index  - Standard semantic, max 1024 tokens
-semantic_256_vector_index   - Aggressive semantic, max 256 tokens
-late_1024_vector_index      - Late chunking with context, max 1024 tokens
-late_256_vector_index       - Late chunking with context, max 256 tokens
+semantic_1024_vector_index → :Semantic1024 nodes
+semantic_256_vector_index  → :Semantic256 nodes
+late_1024_vector_index     → :Late1024 nodes
+late_256_vector_index      → :Late256 nodes
 ```
 
-This allows comparative search without data duplication.
+**Unified Cross-Strategy Index (1):**
+```
+chunk_unified_vector_index → :Chunk nodes (all strategies)
+```
+
+**Why Different Embeddings Per Strategy?**
+- Semantic strategies: Standard embeddings directly from chunk text
+- Late chunking strategies: Blended embeddings (70% chunk + 30% debate context)
+- Each strategy produces DIFFERENT embeddings for the same text
+- Neo4j limitation: Only ONE vector index per label+property combination
+
+**How Multi-Label Indexing Works:**
+- A node with labels `:Chunk:Semantic1024` is automatically indexed by:
+  - `semantic_1024_vector_index` (via :Semantic1024 label)
+  - `chunk_unified_vector_index` (via :Chunk label)
+- Within-strategy queries use strategy-specific indexes
+- Cross-strategy similarity queries use the unified index
+
+This allows comparative search without data duplication while respecting Neo4j's indexing constraints.
 
 ### Graph Schema
 
+**Node Structure (Dual Labels):**
 ```cypher
-(:Chunk {
+(:Chunk:Semantic1024 {  // Example: Semantic 1024 strategy
   id, text, embedding[3072],
   chunkingStrategy, speaker, speakerParty, speakerRole,
   debate, date, hansardReference, contributionType,
   sequence, tokenCount, debateContext
 })
 
+// All nodes have :Chunk + one strategy label:
+(:Chunk:Semantic1024)  // semantic_1024 strategy
+(:Chunk:Semantic256)   // semantic_256 strategy
+(:Chunk:Late1024)      // late_1024 strategy
+(:Chunk:Late256)       // late_256 strategy
+```
+
+**Relationships:**
+```cypher
 (:Chunk)-[:PRECEDES {temporalDistance, sameSpeaker}]->(:Chunk)
 ```
+
+**Data Flattening:**
+Complex objects are serialized to Neo4j primitives:
+- `Speaker` object → `speaker`, `speakerParty`, `speakerRole` strings
+- `HansardReference` object → `hansardReference` string
+- `Date` object → ISO date string
+- `proceduralMarkers` object → JSON string in `proceduralContext`
 
 ### Performance Characteristics
 
@@ -170,11 +229,16 @@ This allows comparative search without data duplication.
 
 ### Key Design Decisions
 
-1. **Separate vector indexes per strategy**: Enables parallel comparative search
-2. **PRECEDES relationships**: Maintains debate flow for context retrieval
-3. **Batch storage**: Improves write performance by 10-20x vs single inserts
-4. **Singleton client**: Prevents connection pool exhaustion
-5. **Property indexes**: Fast metadata filtering (speaker, party, date)
+1. **Strategy-specific labels with dual labeling**: Each node has `:Chunk` + strategy label (e.g., `:Chunk:Semantic1024`)
+2. **Hybrid vector indexing**: 5 indexes total (4 strategy-specific + 1 unified) to handle different embeddings per strategy
+3. **Object flattening layer**: Serializes complex TypeScript objects to Neo4j primitives for storage
+4. **Separate embeddings per strategy**: Semantic strategies use standard embeddings, late chunking uses blended embeddings (70% chunk + 30% debate context)
+5. **Multi-label automatic indexing**: Nodes automatically indexed by all matching indexes based on their labels
+6. **PRECEDES relationships**: Maintains debate flow for context retrieval
+7. **Batch storage**: Improves write performance by 10-20x vs single inserts
+8. **Singleton client with reset**: Prevents connection pool exhaustion, supports test isolation
+9. **Property indexes**: Fast metadata filtering (speaker, party, date)
+10. **Neo4j Integer type handling**: Explicit conversion with `.toInt()` for numeric comparisons
 
 ---
 

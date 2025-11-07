@@ -22,6 +22,7 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 
 - **[Roadmap Overview](docs/roadmap/README.md)** - Current status across all modules, next milestones, and recent wins
 - **[Chunking Strategy Roadmap](docs/roadmap/Chunking-MVP.md)** - Progress on the four chunking pipelines (2/4 complete), MVP milestones, and future features
+- **[Neo4j Vector Storage Roadmap](docs/roadmap/Neo4j-MVP.md)** - Vector database implementation (complete), hybrid indexing strategy, and storage architecture
 - **[User Interface Roadmap](docs/roadmap/Ui-MVP.md)** - SvelteKit frontend plans, comparative visualization, and citation display
 - **[Parliament API Roadmap](docs/roadmap/Gov-API-MVP.md)** - API client implementation (complete), data ingestion, and testing
 - **[Agents & Automation Roadmap](docs/roadmap/Agents-MVP.md)** - Slash commands and documentation workflows (complete)
@@ -75,6 +76,32 @@ This will show:
 - Processing time comparisons
 - Speaker and party distribution
 - Sample chunks from each strategy
+
+### 3.4. Setting up Neo4j Vector Database
+
+The Neo4j vector database stores chunks from all 4 chunking strategies using a hybrid indexing approach:
+- **Dual-label system**: Each chunk has `:Chunk` + strategy label (`:Semantic1024`, `:Semantic256`, `:Late1024`, `:Late256`)
+- **5 vector indexes**: 4 strategy-specific + 1 unified for cross-strategy similarity
+- **Different embeddings per strategy**: Semantic uses standard embeddings, late chunking uses blended embeddings (70% chunk + 30% debate context)
+
+**Step 1:** Set up Neo4j Aura instance (see [Neo4j Setup Guide](docs/neo4j-setup-guide.md))
+
+**Step 2:** Verify connection and initialize schema (creates 5 vector indexes):
+```bash
+npm run test:neo4j:setup
+```
+
+**Step 3:** Populate with all 4 chunking strategies (~154 chunks from test data):
+```bash
+npm run test:neo4j:populate
+```
+
+**Step 4:** Test comparative vector search (queries all 4 strategies simultaneously):
+```bash
+npm run test:neo4j:search
+```
+
+This demonstrates the core experiment: how different chunking strategies retrieve different results for the same query. Test queries show 8-25% overlap between strategies, proving that chunking choices significantly impact retrieval.
 
 ---
 

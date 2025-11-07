@@ -13,7 +13,11 @@
     "test:chunking": "tsx scripts/test-semantic-chunking.ts",
     "test:chunking:compare": "tsx scripts/test-semantic-comparison.ts",
     "test:late-chunking": "tsx scripts/test-late-chunking.ts",
-    "test:validation": "tsx scripts/test-chunk-validation.ts"
+    "test:validation": "tsx scripts/test-chunk-validation.ts",
+    "test:neo4j:setup": "tsx scripts/test-neo4j-setup.ts",
+    "test:neo4j:populate": "tsx scripts/populate-neo4j.ts",
+    "test:neo4j:search": "tsx scripts/test-vector-search.ts",
+    "test:neo4j:reset": "tsx scripts/reset-neo4j.ts"
   },
   "repository": {
     "type": "git",
