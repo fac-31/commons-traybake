@@ -53,7 +53,12 @@ export class VectorSearch {
   }
 
   /**
-   * Search a single chunking strategy
+   * Search a single chunking strategy using its dedicated vector index
+   *
+   * Each strategy has its own label and vector index:
+   * - semantic_1024 → :Semantic1024 → semantic_1024_vector_index
+   * - late_1024 → :Late1024 → late_1024_vector_index
+   * etc.
    */
   public async searchStrategy(
     query: string,
@@ -61,6 +66,7 @@ export class VectorSearch {
     limit: number = 5
   ): Promise<SearchResult[]> {
     const embedding = await this.embedQuery(query);
+    const indexName = `${strategy}_vector_index`;
 
     const cypherQuery = `
       CALL db.index.vector.queryNodes(
@@ -69,7 +75,6 @@ export class VectorSearch {
         $embedding
       )
       YIELD node, score
-      WHERE node.chunkingStrategy = $strategy
       RETURN
         node.id as id,
         node.text as text,
@@ -92,9 +97,8 @@ export class VectorSearch {
     `;
 
     const params = {
-      indexName: `${strategy}_vector_index`,
+      indexName,
       embedding,
-      strategy,
       limit: neo4j.int(limit),
     };
 
@@ -211,6 +215,9 @@ export class VectorSearch {
 
   /**
    * Find chunks that mention the same topic across strategies
+   *
+   * Uses the unified vector index to search across all chunks regardless of strategy.
+   * This allows finding similar content that was chunked differently by various strategies.
    */
   public async findSimilarTopicChunks(
     chunkId: string,
@@ -219,7 +226,7 @@ export class VectorSearch {
     const query = `
       MATCH (source:Chunk {id: $chunkId})
       CALL db.index.vector.queryNodes(
-        'semantic_1024_vector_index',
+        'chunk_unified_vector_index',
         100,
         source.embedding
       )

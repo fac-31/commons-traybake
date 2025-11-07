@@ -59,24 +59,35 @@ export class Neo4jSchema {
   }
 
   /**
-   * Create vector indexes for similarity search
-   * One index per chunking strategy (4 total)
+   * Create vector indexes for similarity search - hybrid approach
+   *
+   * Creates 5 vector indexes total:
+   * 1. Four strategy-specific indexes (one per chunking strategy)
+   *    - Each strategy has its own label and embedding space
+   *    - Used for within-strategy vector search
+   * 2. One unified index on base :Chunk label
+   *    - Indexes all chunks regardless of strategy
+   *    - Used for cross-strategy similarity search
+   *
+   * Since nodes have multiple labels (e.g., :Chunk:Semantic1024), they are
+   * automatically indexed by both the strategy-specific and unified indexes.
    */
   private async createVectorIndexes(): Promise<void> {
     console.log('[Schema] Creating vector indexes...');
 
+    // Strategy-specific indexes
     const strategies = [
-      'semantic_1024',
-      'semantic_256',
-      'late_1024',
-      'late_256',
+      { name: 'semantic_1024', label: 'Semantic1024' },
+      { name: 'semantic_256', label: 'Semantic256' },
+      { name: 'late_1024', label: 'Late1024' },
+      { name: 'late_256', label: 'Late256' },
     ];
 
-    for (const strategy of strategies) {
-      const indexName = `${strategy}_vector_index`;
+    for (const { name, label } of strategies) {
+      const indexName = `${name}_vector_index`;
       const query = `
         CREATE VECTOR INDEX ${indexName} IF NOT EXISTS
-        FOR (c:Chunk)
+        FOR (c:${label})
         ON c.embedding
         OPTIONS {
           indexConfig: {
@@ -88,15 +99,39 @@ export class Neo4jSchema {
 
       try {
         await this.client.run(query);
-        console.log(`[Schema] Created vector index: ${indexName}`);
+        console.log(`[Schema] Created vector index: ${indexName} for label :${label}`);
       } catch (error: any) {
         if (!error.message.includes('already exists')) {
           console.error(`[Schema] Failed to create ${indexName}:`, error);
+          throw error;
         }
       }
     }
 
-    console.log('[Schema] Vector indexes created');
+    // Unified index for cross-strategy search
+    const unifiedQuery = `
+      CREATE VECTOR INDEX chunk_unified_vector_index IF NOT EXISTS
+      FOR (c:Chunk)
+      ON c.embedding
+      OPTIONS {
+        indexConfig: {
+          \`vector.dimensions\`: 3072,
+          \`vector.similarity_function\`: 'cosine'
+        }
+      }
+    `;
+
+    try {
+      await this.client.run(unifiedQuery);
+      console.log('[Schema] Created unified vector index: chunk_unified_vector_index for label :Chunk');
+    } catch (error: any) {
+      if (!error.message.includes('already exists')) {
+        console.error('[Schema] Failed to create unified vector index:', error);
+        throw error;
+      }
+    }
+
+    console.log('[Schema] Vector indexes created (5 total: 4 strategy-specific + 1 unified)');
   }
 
   /**

@@ -23,6 +23,19 @@ export class ChunkStorage {
   }
 
   /**
+   * Get the Neo4j label for a chunking strategy
+   */
+  private getStrategyLabel(strategy: string): string {
+    const labelMap: Record<string, string> = {
+      'semantic_1024': 'Semantic1024',
+      'semantic_256': 'Semantic256',
+      'late_1024': 'Late1024',
+      'late_256': 'Late256',
+    };
+    return labelMap[strategy] || 'Chunk';
+  }
+
+  /**
    * Flatten a chunk for Neo4j storage by converting complex objects to primitives
    */
   private flattenChunk(chunk: Chunk): Record<string, any> {
@@ -61,13 +74,15 @@ export class ChunkStorage {
   }
 
   /**
-   * Store a single chunk in Neo4j
+   * Store a single chunk in Neo4j with strategy-specific label
    */
   public async storeChunk(chunk: Chunk): Promise<void> {
     const flat = this.flattenChunk(chunk);
+    const strategy = flat.chunkingStrategy;
+    const label = this.getStrategyLabel(strategy);
 
     const query = `
-      CREATE (c:Chunk {
+      CREATE (c:Chunk:${label} {
         id: $id,
         text: $text,
         embedding: $embedding,
@@ -107,15 +122,17 @@ export class ChunkStorage {
     }
 
     const strategy = chunks[0].chunkingStrategy || chunks[0].strategy;
+    const label = this.getStrategyLabel(strategy);
 
     // Store chunks in batches of 100 for better performance
     const batchSize = 100;
     for (let i = 0; i < chunks.length; i += batchSize) {
       const batch = chunks.slice(i, i + batchSize);
 
+      // Use strategy-specific label for vector index
       const query = `
         UNWIND $chunks AS chunk
-        CREATE (c:Chunk {
+        CREATE (c:Chunk:${label} {
           id: chunk.id,
           text: chunk.text,
           embedding: chunk.embedding,
