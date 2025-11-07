@@ -21,7 +21,7 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 ### 2.2. Implementation & Roadmap
 
 - **[Roadmap Overview](docs/roadmap/README.md)** - Current status across all modules, next milestones, and recent wins
-- **[Chunking Strategy Roadmap](docs/roadmap/Chunking-MVP.md)** - Progress on the four chunking pipelines (2/4 complete), MVP milestones, and future features
+- **[Chunking Strategy Roadmap](docs/roadmap/Chunking-MVP.md)** - Progress on the four chunking pipelines (4/4 complete with validation), MVP milestones, and future features
 - **[User Interface Roadmap](docs/roadmap/Ui-MVP.md)** - SvelteKit frontend plans, comparative visualization, and citation display
 - **[Parliament API Roadmap](docs/roadmap/Gov-API-MVP.md)** - API client implementation (complete), data ingestion, and testing
 - **[Agents & Automation Roadmap](docs/roadmap/Agents-MVP.md)** - Slash commands and documentation workflows (complete)
@@ -69,12 +69,23 @@ Compare both semantic strategies side-by-side (1024 vs 256 tokens):
 npm run test:chunking:compare
 ```
 
+Test late chunking with contextual embedding blending:
+```bash
+npm run test:late-chunking
+```
+
+Run comprehensive validation across all 4 chunking strategies:
+```bash
+npm run test:validation
+```
+
 This will show:
 - Chunk count differences between strategies
 - Token granularity analysis
 - Processing time comparisons
 - Speaker and party distribution
 - Sample chunks from each strategy
+- Quality metrics and bias detection
 
 ---
 
