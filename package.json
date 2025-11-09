@@ -7,13 +7,21 @@
     "doc": "docs"
   },
   "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:simple-api": "tsx scripts/simple-api-test.ts",
     "test:api": "tsx scripts/test-parliament-api.ts",
     "test:chunking": "tsx scripts/test-semantic-chunking.ts",
     "test:chunking:compare": "tsx scripts/test-semantic-comparison.ts",
     "test:late-chunking": "tsx scripts/test-late-chunking.ts",
-    "test:validation": "tsx scripts/test-chunk-validation.ts"
+    "test:validation": "tsx scripts/test-chunk-validation.ts",
+    "test:neo4j:setup": "tsx scripts/test-neo4j-setup.ts",
+    "test:neo4j:populate": "tsx scripts/populate-neo4j.ts",
+    "test:neo4j:search": "tsx scripts/test-vector-search.ts",
+    "test:neo4j:reset": "tsx scripts/reset-neo4j.ts"
   },
   "repository": {
     "type": "git",
@@ -39,12 +47,16 @@
     "tiktoken": "^1.0.22"
   },
   "devDependencies": {
+    "@sveltejs/adapter-auto": "^7.0.0",
+    "@sveltejs/kit": "^2.48.4",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@types/express": "^5.0.4",
     "@types/node": "^24.9.1",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "eslint": "^9.38.0",
     "prettier": "^3.6.2",
+    "svelte": "^5.43.4",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^4.0.3"

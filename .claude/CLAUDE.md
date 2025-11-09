@@ -48,17 +48,15 @@ npm install
 
 ### Data Pipeline
 ```bash
-# Fetch Parliament API test data
-npm run api:fetch
+# Test chunking strategies locally
+npm run test:chunking              # Test single strategy
+npm run test:chunking:compare      # Compare semantic strategies
 
-# Run data ingestion
-npm run ingest
-
-# Process through all four chunking pipelines
-npm run process:all
-
-# Verify chunks in Neo4j
-npm run verify-chunks
+# Neo4j setup and population
+npm run test:neo4j:setup          # Initialize schema and indexes
+npm run test:neo4j:populate       # Load all 4 chunking strategies
+npm run test:neo4j:search         # Test comparative vector search
+npm run test:neo4j:reset          # Clear database for fresh start
 ```
 
 ### API Testing
@@ -87,30 +85,61 @@ npm run type-check
 
 ## Neo4j Schema
 
-### Node: Chunk
-```typescript
-{
-  id: string
-  text: string
-  embedding: float[]
-  chunkingStrategy: "semantic_1024" | "semantic_256" | "late_1024" | "late_256"
+### Node: Chunk (Dual Label System)
 
-  // Parliamentary metadata
-  speaker: string
-  speakerParty: string
-  speakerRole: string
-  debate: string
-  date: date
-  hansardReference: string
-  contributionType: "speech" | "intervention" | "question" | "answer"
-  proceduralContext: string
-}
+**All chunks have TWO labels:**
+- Base label: `:Chunk` (for unified cross-strategy queries)
+- Strategy label: `:Semantic1024`, `:Semantic256`, `:Late1024`, or `:Late256`
+
+**Example node creation:**
+```cypher
+CREATE (c:Chunk:Semantic1024 {
+  id: string,
+  text: string,
+  embedding: float[3072],
+  chunkingStrategy: "semantic_1024",
+
+  // Parliamentary metadata (flattened)
+  speaker: string,
+  speakerParty: string,
+  speakerRole: string,
+  debate: string,
+  date: date,
+  hansardReference: string,
+  contributionType: "speech" | "intervention" | "question" | "answer",
+  proceduralContext: string,
+  sequence: int,
+  tokenCount: int,
+  debateContext: float[] | null
+})
 ```
 
+**Vector Indexes (5 total):**
+- 4 strategy-specific: `semantic_1024_vector_index`, `semantic_256_vector_index`, `late_1024_vector_index`, `late_256_vector_index`
+- 1 unified: `chunk_unified_vector_index` (on `:Chunk` label)
+
+**Why Different Embeddings?**
+- Semantic strategies: Standard embeddings from text
+- Late chunking strategies: Blended embeddings (70% chunk + 30% debate context)
+- Neo4j constraint: ONE vector index per label+property
+- Solution: Strategy-specific labels allow different embeddings on same property
+
+**Multi-Label Indexing:**
+A node with `:Chunk:Semantic1024` is automatically indexed by:
+- `semantic_1024_vector_index` (via `:Semantic1024`)
+- `chunk_unified_vector_index` (via `:Chunk`)
+
 ### Relationships
-- `PRECEDES`: Preserves debate thread structure
-- `RESPONDS_TO`: Tracks who's addressing whom
-- `MENTIONS_SAME_TOPIC`: Connects chunks discussing same bill/policy
+- `PRECEDES`: Preserves debate thread structure (implemented)
+- `RESPONDS_TO`: Tracks who's addressing whom (future)
+- `MENTIONS_SAME_TOPIC`: Connects chunks discussing same bill/policy (future)
+
+### Data Flattening
+Complex TypeScript objects are serialized to Neo4j primitives:
+- `Speaker {name, party, role}` → `speaker`, `speakerParty`, `speakerRole` strings
+- `HansardReference {reference, volume, url}` → `hansardReference` string
+- `Date` object → ISO date string
+- `proceduralMarkers` object → JSON string in `proceduralContext`
 
 ## Parliamentary Data Handling
 
