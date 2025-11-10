@@ -1,15 +1,28 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition';
   import type { ComparativeSearchResults, DivergenceAnalysis } from '$lib/types';
   import CitationCard from './CitationCard.svelte';
 
   export let results: ComparativeSearchResults;
 
   const strategies = [
-    { key: 'semantic_1024', name: 'Semantic 1024', description: 'Standard semantic chunking, max 1024 tokens' },
-    { key: 'semantic_256', name: 'Semantic 256', description: 'Aggressive semantic chunking, max 256 tokens' },
+    { key: 'semantic_1024', name: 'Early Chunking 1024', description: 'Standard semantic chunking, max 1024 tokens' },
+    { key: 'semantic_256', name: 'Early Chunking 256', description: 'Aggressive semantic chunking, max 256 tokens' },
     { key: 'late_1024', name: 'Late Chunking 1024', description: 'Context-aware with debate embedding (70/30 blend)' },
     { key: 'late_256', name: 'Late Chunking 256', description: 'Context-aware with 256 token chunks' }
   ] as const;
+
+  // Track collapsed state for each strategy
+  let collapsedStates: Record<string, boolean> = {
+    semantic_1024: true,
+    semantic_256: true,
+    late_1024: true,
+    late_256: true
+  };
+
+  function toggleStrategy(key: string) {
+    collapsedStates[key] = !collapsedStates[key];
+  }
 
   // Calculate divergence analysis
   function analyzeDivergence(): DivergenceAnalysis {
@@ -34,6 +47,8 @@
       const stratResults = results[s.key as keyof ComparativeSearchResults] as any[];
       return sum + stratResults.length;
     }, 0);
+
+    const identicalChunks = totalResults - uniqueChunkIds.size;
 
     const overlapPercentage = totalResults > 0
       ? ((totalResults - uniqueChunkIds.size) / totalResults) * 100
@@ -60,6 +75,8 @@
 
     return {
       totalUniqueChunks: uniqueChunkIds.size,
+      totalResults,
+      identicalChunks,
       overlapPercentage,
       strategyOverlaps
     };
@@ -67,6 +84,9 @@
 
   $: divergence = analyzeDivergence();
   $: isDivergent = divergence.overlapPercentage < 75;
+
+  // Calculate n (chunks per strategy) - assuming all strategies return same count
+  $: chunksPerStrategy = results.semantic_1024?.length || 0;
 </script>
 
 <div class="comparative-grid">
@@ -101,6 +121,13 @@
       </div>
     </div>
 
+    <p class="divergence-math">
+      The <strong>{chunksPerStrategy}</strong> most similar chunks were retrieved from each strategy.
+      Out of <strong>{divergence.totalResults}</strong> total chunks (4 × {chunksPerStrategy}),
+      <strong>{divergence.identicalChunks}</strong> {divergence.identicalChunks === 1 ? 'chunk was' : 'chunks were'} identical,
+      and <strong>{divergence.totalUniqueChunks}</strong> {divergence.totalUniqueChunks === 1 ? 'chunk was' : 'chunks were'} unique.
+    </p>
+
     {#if divergence.strategyOverlaps.length > 0}
       <details class="overlaps-detail">
         <summary>View strategy overlaps</summary>
@@ -133,26 +160,40 @@
   <div class="strategies-grid">
     {#each strategies as strategy}
       {@const strategyResults = results[strategy.key]}
+      {@const isCollapsed = collapsedStates[strategy.key]}
       <div class="strategy-column">
-        <div class="strategy-header">
-          <h3>{strategy.name}</h3>
-          <p class="strategy-description">{strategy.description}</p>
-          <div class="result-count">
-            {strategyResults.length} {strategyResults.length === 1 ? 'result' : 'results'}
-          </div>
-        </div>
-
-        <div class="results-list">
-          {#if strategyResults.length === 0}
-            <div class="no-results">
-              <p>No results found for this strategy</p>
+        <button
+          class="strategy-header"
+          on:click={() => toggleStrategy(strategy.key)}
+          aria-expanded={!isCollapsed}
+        >
+          <div class="header-content">
+            <div class="header-top">
+              <h3>{strategy.name}</h3>
+              <span class="collapse-icon" class:collapsed={isCollapsed}>
+                {isCollapsed ? '▶' : '▼'}
+              </span>
             </div>
-          {:else}
-            {#each strategyResults as result}
-              <CitationCard {result} strategyName={strategy.key} />
-            {/each}
-          {/if}
-        </div>
+            <p class="strategy-description">{strategy.description}</p>
+            <div class="result-count">
+              {strategyResults.length} {strategyResults.length === 1 ? 'result' : 'results'}
+            </div>
+          </div>
+        </button>
+
+        {#if !isCollapsed}
+          <div class="results-list" transition:slide={{ duration: 300 }}>
+            {#if strategyResults.length === 0}
+              <div class="no-results">
+                <p>No results found for this strategy</p>
+              </div>
+            {:else}
+              {#each strategyResults as result}
+                <CitationCard {result} strategyName={strategy.key} />
+              {/each}
+            {/if}
+          </div>
+        {/if}
       </div>
     {/each}
   </div>
@@ -241,6 +282,30 @@
     color: #666;
   }
 
+  .divergence-math {
+    margin: 1rem 0 0 0;
+    padding: 0.75rem 1rem;
+    background: rgba(74, 158, 255, 0.05);
+    border-left: 3px solid #4a9eff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .divergence-summary.divergent .divergence-math {
+    background: rgba(255, 152, 0, 0.05);
+    border-left-color: #ff9800;
+  }
+
+  .divergence-math strong {
+    color: #4a9eff;
+  }
+
+  .divergence-summary.divergent .divergence-math strong {
+    color: #ff9800;
+  }
+
   .overlaps-detail {
     margin-top: 1rem;
     padding: 0.75rem;
@@ -284,7 +349,7 @@
   .strategies-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   @media (max-width: 1024px) {
@@ -297,19 +362,67 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e3f2fd;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .strategy-column:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    border-color: #4a9eff;
   }
 
   .strategy-header {
-    background: white;
+    width: 100%;
+    background: #f8fbff;
     border-radius: 8px;
     padding: 1.25rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #4a9eff;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: left;
+  }
+
+  .strategy-header:hover {
+    background: #f0f7ff;
+  }
+
+  .strategy-header:focus {
+    outline: 2px solid #4a9eff;
+    outline-offset: 2px;
+  }
+
+  .header-content {
+    width: 100%;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
   }
 
   .strategy-header h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     font-size: 1.25rem;
     color: #333;
+  }
+
+  .collapse-icon {
+    font-size: 1rem;
+    color: #4a9eff;
+    transition: transform 0.2s;
+  }
+
+  .collapse-icon.collapsed {
+    transform: rotate(0deg);
   }
 
   .strategy-description {
@@ -336,11 +449,11 @@
   }
 
   .no-results {
-    background: white;
+    background: #fafafa;
     border-radius: 8px;
     padding: 2rem;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px dashed #ddd;
   }
 
   .no-results p {

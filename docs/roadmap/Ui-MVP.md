@@ -131,3 +131,15 @@ All MVP milestones complete! 🎉
 - Tested development server (running on localhost:5173)
 - Verified UI can display comparative results
 - Confirmed divergence visualization works correctly
+
+**UI Enhancements (2025-01-10):**
+- ✅ Added cosine similarity tooltip on score bars explaining semantic distance
+- ✅ Implemented configurable results limit (n parameter, default 3, max 20)
+- ✅ Updated terminology: "Semantic" → "Early Chunking" throughout UI (internal code unchanged)
+- ✅ Added visual frames around strategy columns in 2×2 grid for clarity
+- ✅ Implemented collapsible strategy columns (all start collapsed for clean initial view)
+- ✅ Added smooth slide animations for expand/collapse transitions
+- ✅ Enhanced divergence explanation with mathematical breakdown (n, total, identical, unique chunks)
+- ✅ Improved accessibility with keyboard navigation and aria-expanded attributes
+- ✅ Added hover effects on strategy frames and clickable headers
+- ✅ Updated TypeScript types: DivergenceAnalysis now includes totalResults and identicalChunks

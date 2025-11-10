@@ -103,6 +103,30 @@ npm run test:neo4j:search
 
 This demonstrates the core experiment: how different chunking strategies retrieve different results for the same query. Test queries show 8-25% overlap between strategies, proving that chunking choices significantly impact retrieval.
 
+### 3.5. Running the User Interface
+
+The SvelteKit frontend provides an interactive comparative search interface:
+
+**Start the development server:**
+```bash
+npm run dev
+```
+
+**Access the UI:** Open http://localhost:5173
+
+**Features:**
+- **Comparative search**: Query all 4 chunking strategies simultaneously
+- **Configurable results**: Choose how many chunks (n) to retrieve per strategy (1-20)
+- **Divergence analysis**: See mathematical breakdown of overlapping vs unique results
+- **Collapsible strategy views**: Expand/collapse each strategy's results independently
+- **Rich citations**: Party-colored speaker badges, Hansard references, similarity scores with tooltips
+- **Visual frames**: Clear 2×2 grid showing "Early Chunking 1024/256" and "Late Chunking 1024/256"
+
+**Example queries:**
+- "What is the government's position on NHS funding?"
+- "How did the opposition respond to the Prime Minister?"
+- "What are the concerns about education policy?"
+
 ---
 
 ## 4. Testimonials

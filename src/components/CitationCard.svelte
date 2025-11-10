@@ -9,7 +9,8 @@
   // Format strategy name for display
   const strategyDisplay = strategyName
     .replace('_', ' ')
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .replace('Semantic', 'Early Chunking');
 
   // Truncate text if too long
   function truncateText(text: string, maxLength: number = 300): string {
@@ -36,7 +37,11 @@
 <article class="citation-card">
   <div class="card-header">
     <div class="rank">#{rank}</div>
-    <div class="score" style="--score-width: {score * 100}%">
+    <div
+      class="score"
+      style="--score-width: {score * 100}%"
+      title="Cosine similarity between chunk embedding and query embedding. Higher scores indicate semantically similar content."
+    >
       <div class="score-bar"></div>
       <span class="score-text">{(score * 100).toFixed(1)}%</span>
     </div>
@@ -125,6 +130,7 @@
     background: #f0f0f0;
     border-radius: 12px;
     overflow: hidden;
+    cursor: help;
   }
 
   .score-bar {

@@ -16,10 +16,12 @@ Parliament API → Data Ingestion → 4 Parallel Processing Pipelines → 4 Sepa
 
 ### Four Chunking Strategies
 
-1. **Semantic 1024**: Standard semantic chunking, max 1024 tokens, preserves speaker boundaries
-2. **Semantic 256**: Aggressive semantic chunking, max 256 tokens, may split mid-speech
+1. **Semantic 1024** (displayed as "Early Chunking 1024"): Standard semantic chunking, max 1024 tokens, preserves speaker boundaries
+2. **Semantic 256** (displayed as "Early Chunking 256"): Aggressive semantic chunking, max 256 tokens, may split mid-speech
 3. **Late Chunking 1024**: Embeds full debate first, then chunks, injects contextual embeddings (70% chunk + 30% debate context)
 4. **Late Chunking 256**: Same late chunking approach with 256 token chunks
+
+**Note on Terminology**: In the UI, "Semantic" strategies are labeled as "Early Chunking" to better convey that chunking happens before embedding. Internal code, types, and database labels retain "semantic" for consistency.
 
 ## Technology Stack
 

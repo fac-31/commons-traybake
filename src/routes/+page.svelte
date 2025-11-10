@@ -7,8 +7,8 @@
   let loading = false;
   let error: string | null = null;
 
-  async function handleSearch(event: CustomEvent<{ query: string }>) {
-    const query = event.detail.query;
+  async function handleSearch(event: CustomEvent<{ query: string; limit: number }>) {
+    const { query, limit } = event.detail;
 
     if (!query.trim()) {
       return;
@@ -24,7 +24,7 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, limit })
       });
 
       if (!response.ok) {
