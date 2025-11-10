@@ -32,6 +32,10 @@ Exploring how ethics-neutral data processing decisions are not ethics-neutral by
 - **[Parliament API Developer Guide](docs/PARLIAMENT_API_GUIDE.md)** - Complete reference for all UK Parliament API endpoints: Hansard, Members, Votes, Committees, and Bills
 - **[API Testing Guide](docs/api-testing-guide.md)** - Comprehensive testing workflows using Bruno and HTTPie, validation patterns, and integration strategies
 
+### 2.4. Development Workflow
+
+- **[Roadmaps, Docs & Slash Commands Guide](docs/ROADMAPS-DOCS-COMMANDS-GUIDE.md)** - Complete guide to the three-part documentation system: how roadmaps track progress, how docs explain concepts, and how slash commands automate updates
+
 ---
 
 ## 3. Setup
