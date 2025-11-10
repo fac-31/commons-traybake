@@ -1,5 +1,6 @@
 <script lang="ts">
   import '../app.css';
+  import About from '../../src/components/About.svelte';
 </script>
 
 <div class="app">
@@ -7,6 +8,8 @@
     <h1>Commons Traybake</h1>
     <p class="subtitle">How chunking choices shape what you see</p>
   </header>
+
+  <About />
 
   <main>
     <slot />
