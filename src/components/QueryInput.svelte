@@ -4,7 +4,8 @@
   export let disabled = false;
 
   let query = '';
-  const dispatch = createEventDispatcher<{ search: { query: string } }>();
+  let topN = 3;
+  const dispatch = createEventDispatcher<{ search: { query: string; limit: number } }>();
 
   const exampleQueries = [
     "What is the government's position on NHS funding?",
@@ -15,7 +16,7 @@
 
   function handleSubmit() {
     if (query.trim()) {
-      dispatch('search', { query: query.trim() });
+      dispatch('search', { query: query.trim(), limit: topN });
     }
   }
 
@@ -40,9 +41,22 @@
       {disabled}
       rows="3"
     />
-    <button on:click={handleSubmit} {disabled} class="search-button">
-      Search All Strategies
-    </button>
+    <div class="controls">
+      <div class="limit-control">
+        <label for="topN">Analyse top <strong>n</strong> chunks:</label>
+        <input
+          id="topN"
+          type="number"
+          bind:value={topN}
+          min="1"
+          max="20"
+          {disabled}
+        />
+      </div>
+      <button on:click={handleSubmit} {disabled} class="search-button">
+        Search All Strategies
+      </button>
+    </div>
   </div>
 
   <div class="examples">
@@ -91,6 +105,45 @@
   }
 
   textarea:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .limit-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  .limit-control label {
+    white-space: nowrap;
+  }
+
+  .limit-control input[type='number'] {
+    width: 60px;
+    padding: 0.5rem;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .limit-control input[type='number']:focus {
+    outline: none;
+    border-color: #4a9eff;
+  }
+
+  .limit-control input[type='number']:disabled {
     background: #f5f5f5;
     cursor: not-allowed;
   }

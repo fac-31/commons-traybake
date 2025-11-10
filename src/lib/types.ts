@@ -37,6 +37,8 @@ export interface ComparativeSearchResults {
 
 export interface DivergenceAnalysis {
   totalUniqueChunks: number;
+  totalResults: number;
+  identicalChunks: number;
   overlapPercentage: number;
   strategyOverlaps: {
     strategies: [string, string];

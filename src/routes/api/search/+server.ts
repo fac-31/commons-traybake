@@ -4,7 +4,7 @@ import { VectorSearch } from '../../../storage/vector-search.js';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
-    const { query } = await request.json();
+    const { query, limit } = await request.json();
 
     if (!query || typeof query !== 'string') {
       throw error(400, 'Query is required and must be a string');
@@ -14,9 +14,15 @@ export const POST: RequestHandler = async ({ request }) => {
       throw error(400, 'Query cannot be empty');
     }
 
+    // Validate limit parameter
+    const searchLimit = limit && typeof limit === 'number' && limit > 0 ? limit : 3;
+    if (searchLimit > 20) {
+      throw error(400, 'Limit cannot exceed 20');
+    }
+
     // Perform comparative search across all 4 strategies
     const vectorSearch = new VectorSearch();
-    const results = await vectorSearch.comparativeSearch(query.trim(), 3);
+    const results = await vectorSearch.comparativeSearch(query.trim(), searchLimit);
 
     return json(results);
   } catch (err) {
